@@ -744,12 +744,31 @@ const EditModal = ({ event, onClose, onSave }) => {
                               >
                                 Delete
                               </button>
+                              {/* Refund Button */}
+                              <button
+                                type="button"
+                                className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-md text-sm font-medium transition-colors dark:bg-red-900/40 dark:text-red-300 dark:hover:bg-red-800/60"
+                                // onClick={() => refundParticipant(index)} // Placeholder for future logic
+                              >
+                                Refund
+                              </button>
                             </div>
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
+                </div>
+
+                {/* Refund All Section */}
+                <div className="mb-6 flex justify-end">
+                  <button
+                    type="button"
+                    className="px-5 py-2 bg-red-600 text-white rounded-md text-sm font-semibold shadow hover:bg-red-700 transition-colors"
+                    // onClick={refundAllParticipants} // Placeholder for future logic
+                  >
+                    Refund All
+                  </button>
                 </div>
 
                 {/* Add/Edit Participant Form */}
