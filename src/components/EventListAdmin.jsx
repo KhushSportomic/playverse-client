@@ -250,6 +250,7 @@ const EditModal = ({ event, onClose, onSave }) => {
   });
   const [editingParticipantIndex, setEditingParticipantIndex] = useState(null);
   const [activeTab, setActiveTab] = useState("details");
+  const [selectedParticipants, setSelectedParticipants] = useState([]);
 
   // Modified calculation to only count successful participants
   const calculateSuccessfulParticipants = (participants) =>
@@ -416,6 +417,26 @@ const EditModal = ({ event, onClose, onSave }) => {
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
+  };
+
+  const handleCheckboxChange = (index) => {
+    setSelectedParticipants((prev) =>
+      prev.includes(index)
+        ? prev.filter((i) => i !== index)
+        : [...prev, index]
+    );
+  };
+
+  const handleRefundSelected = () => {
+    setEditedEvent((prev) => ({
+      ...prev,
+      participants: prev.participants.map((p, i) =>
+        selectedParticipants.includes(i)
+          ? { ...p, refunded: true }
+          : p
+      ),
+    }));
+    setSelectedParticipants([]); // Optionally clear selection after refund
   };
 
   return (
@@ -710,6 +731,14 @@ const EditModal = ({ event, onClose, onSave }) => {
                             key={index}
                             className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                           >
+                            {/* Checkbox for selection */}
+                            <input
+                              type="checkbox"
+                              checked={selectedParticipants.includes(index)}
+                              onChange={() => handleCheckboxChange(index)}
+                              className="mr-2 accent-teal-600"
+                              disabled={participant.refunded}
+                            />
                             <div className="flex-grow">
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-gray-800 dark:text-gray-200">
@@ -722,6 +751,11 @@ const EditModal = ({ event, onClose, onSave }) => {
                                 >
                                   {participant.paymentStatus}
                                 </span>
+                                {participant.refunded && (
+                                  <span className="ml-2 text-xs px-2 py-0.5 rounded-full border border-red-500 text-red-600 bg-red-50 dark:bg-green-900/30 dark:text-red-400">
+                                    refunded
+                                  </span>
+                                )}
                               </div>
                               <div className="mt-1 text-sm text-gray-500 dark:text-gray-400 flex flex-wrap gap-x-4">
                                 <span>📱 {participant.phone}</span>
@@ -744,14 +778,6 @@ const EditModal = ({ event, onClose, onSave }) => {
                               >
                                 Delete
                               </button>
-                              {/* Refund Button */}
-                              <button
-                                type="button"
-                                className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-md text-sm font-medium transition-colors dark:bg-red-900/40 dark:text-red-300 dark:hover:bg-red-800/60"
-                                // onClick={() => refundParticipant(index)} // Placeholder for future logic
-                              >
-                                Refund
-                              </button>
                             </div>
                           </div>
                         ))}
@@ -765,9 +791,9 @@ const EditModal = ({ event, onClose, onSave }) => {
                   <button
                     type="button"
                     className="px-5 py-2 bg-red-600 text-white rounded-md text-sm font-semibold shadow hover:bg-red-700 transition-colors"
-                    // onClick={refundAllParticipants} // Placeholder for future logic
+                    onClick={handleRefundSelected}
                   >
-                    Refund All
+                    Refund
                   </button>
                 </div>
 
