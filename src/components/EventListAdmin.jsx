@@ -439,29 +439,26 @@ const EditModal = ({ event, onClose, onSave }) => {
 
     try {
       // Call backend refundParticipants API
-      const res = await axios.post(
-        `${apiUrl}/events/${editedEvent._id}/refund`,
-        { participantIndexes: selectedParticipants },
-        {
-          headers: { "x-admin-token": localStorage.getItem("adminToken") },
-        }
-      );
-
-      if (res.data.success) {
-        // Update the local state to reflect refunded status
-        setEditedEvent((prev) => ({
-          ...prev,
-          participants: prev.participants.map((p, i) =>
-            selectedParticipants.includes(i)
-              ? { ...p, refunded: true, refundDate: new Date().toISOString() }
-              : p
-          ),
-        }));
-        setSelectedParticipants([]);
-        alert(`Refunded ${res.data.successfulRefunds} participant(s).`);
-      } else {
-        alert("Refund failed. Please try again.");
+      for (const idx of selectedParticipants) {
+        const participantId = editedEvent.participants[idx].id;
+        await axios.post(
+          `${apiUrl}/events/${editedEvent._id}/refund/${participantId}`,
+          {},
+          { headers: { "x-admin-token": localStorage.getItem("adminToken") } }
+        );
       }
+
+      // Update the local state to reflect refunded status
+      setEditedEvent((prev) => ({
+        ...prev,
+        participants: prev.participants.map((p, i) =>
+          selectedParticipants.includes(i)
+            ? { ...p, refunded: true, refundDate: new Date().toISOString() }
+            : p
+        ),
+      }));
+      setSelectedParticipants([]);
+      alert(`Refunded ${selectedParticipants.length} participant(s).`);
     } catch (err) {
       alert("Refund failed. Please try again.");
       console.error(err);
