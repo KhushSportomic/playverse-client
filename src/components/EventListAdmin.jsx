@@ -440,7 +440,8 @@ const EditModal = ({ event, onClose, onSave }) => {
     try {
       // Call backend refundParticipants API
       for (const idx of selectedParticipants) {
-        const participantId = editedEvent.participants[idx].id;
+        const participant = editedEvent.participants[idx];
+        const participantId = participant._id || participant.id;
         await axios.post(
           `${apiUrl}/events/${editedEvent._id}/refund/${participantId}`,
           {},
