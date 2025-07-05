@@ -427,16 +427,45 @@ const EditModal = ({ event, onClose, onSave }) => {
     );
   };
 
-  const handleRefundSelected = () => {
-    setEditedEvent((prev) => ({
-      ...prev,
-      participants: prev.participants.map((p, i) =>
-        selectedParticipants.includes(i)
-          ? { ...p, refunded: true }
-          : p
-      ),
-    }));
-    setSelectedParticipants([]); // Optionally clear selection after refund
+  const handleRefundSelected = async () => {
+    if (selectedParticipants.length === 0) {
+      alert("Please select participants to refund.");
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to refund ${selectedParticipants.length} participant(s)?`)) {
+      return;
+    }
+
+    try {
+      // Call backend refundParticipants API
+      const res = await axios.post(
+        `${apiUrl}/events/${editedEvent._id}/refund`,
+        { participantIndexes: selectedParticipants },
+        {
+          headers: { "x-admin-token": localStorage.getItem("adminToken") },
+        }
+      );
+
+      if (res.data.success) {
+        // Update the local state to reflect refunded status
+        setEditedEvent((prev) => ({
+          ...prev,
+          participants: prev.participants.map((p, i) =>
+            selectedParticipants.includes(i)
+              ? { ...p, refunded: true, refundDate: new Date().toISOString() }
+              : p
+          ),
+        }));
+        setSelectedParticipants([]);
+        alert(`Refunded ${res.data.successfulRefunds} participant(s).`);
+      } else {
+        alert("Refund failed. Please try again.");
+      }
+    } catch (err) {
+      alert("Refund failed. Please try again.");
+      console.error(err);
+    }
   };
 
   return (
